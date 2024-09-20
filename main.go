@@ -12,8 +12,15 @@ import (
 type MyServerType bool
 
 func (m MyServerType) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello World")
-	fmt.Fprintf(w, "Request is : %+v", r)
+	fmt.Fprintf(w, `
+	<html>
+		<head>	
+		</head>
+		<body>
+			<h1>Hello Worlds</h1>
+		</body>
+	</html>
+	`)
 }
 
 func main() {
