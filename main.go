@@ -5,11 +5,19 @@ import (
 	"net/http"
 )
 
-// type Handler interface {
-// 	ServeHTTP(ResponseWriter, *Request)
-// }
+type login int
+type welcome int
 
-// type MyServerType bool
+func (l login) ServeHTTP(w http.ResponseWriter, r *http.Request){
+	fmt.Fprintln(w, "on log in page")
+}
+
+func (wl welcome) ServeHTTP(w http.ResponseWriter, r *http.Request){
+	fmt.Fprintln(w, "on Welcome page")
+}
+
+
+
 
 func mylogin(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `
@@ -36,8 +44,17 @@ func mywelcome(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/login", mylogin)
-	http.HandleFunc("/welcome", mywelcome)
+	//accepts handler accepts patterna dn function signature but not same name
+	// http.HandleFunc("/login", mylogin)
+	// http.HandleFunc("/welcome", mywelcome)
+	// accepts handler interface of type http.Handler
+	//accepts pattern and handler
+	// http.Handle("/login", http.HandlerFunc(mylogin))
+	// http.Handle("/welcome", http.HandlerFunc(mywelcome))
+	var i login
+	var j welcome
+	http.Handle("/login", i)
+	http.Handle("/welcome", j)
 	fmt.Println("Listening on port 3001")
 	// var foo MyServerType
 	http.ListenAndServe("localhost:3001", nil)
