@@ -1,8 +1,7 @@
 {
     "functions": {
       "api/main.go": {
-        "runtime": "provided.al2"
-      }
+        }
     },
     "routes": [
       {
