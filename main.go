@@ -9,6 +9,18 @@ type login int
 type welcome int
 
 func (l login) ServeHTTP(w http.ResponseWriter, r *http.Request){
+	// if r.Method == "GET"{
+	// 	fmt.Fprintln(w, "Using GET for login endpoint")
+	// }
+	if r.Method == "POST"{
+		fmt.Fprintln(w, "Using POST for login endpoint")
+	}
+	switch r.Method{
+	case "GET":
+		fmt.Fprintln(w, "Using GET for easier login endpoint")
+	case "POST":
+		fmt.Fprintln(w, "Using POST for easier login endpoint")
+	}
 	fmt.Fprintln(w, "on log in page")
 }
 
