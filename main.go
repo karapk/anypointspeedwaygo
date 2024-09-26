@@ -1,28 +1,33 @@
 package main
 
 import (
-	"net/http"
+	"fmt"
+	"log"
+	"os"
 
-	"main.go/api"
+	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	"anypointspeedwaygo/handlers"
 )
 
-// func main() {
-// 	e := echo.New()
-// 	e.GET("/", func(c echo.Context) error {
-// 		return c.String(http.StatusOK, "Welcome to Anypoint racing! 🚗💨")
-// 	})
-
-// 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-// 		e.ServeHTTP(w, r)
-// 	})
-// 	e.Logger.Print("Listening to port 4000")
-// 	e.Logger.Fatal(e.Start(":4000"))
-// }
-
 func main() {
-	// Register the handler from api package
-	http.HandleFunc("/", api.Handler)
+	err :=godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	// Start the HTTP server
-	http.ListenAndServe(":8080", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "4000"
+	}
+
+	e := echo.New()
+
+	e.GET("/", handlers.WelcomeHandler)
+	e.POST("races", handlers.CreateRaceHandler)
+	e.POST("races/:id/laps", handlers.CompleteLapHandler)
+
+	fmt.Printf("Server running at http://localhost:%s\n", port)
+	log.Fatal(e.Start(":" + port))
+
 }
