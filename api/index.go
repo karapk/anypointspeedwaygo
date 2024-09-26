@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 	"encoding/json"
-	"github.com/tbxark/g4vercel"
+	."github.com/tbxark/g4vercel"
 	"github.com/google/uuid"
 )
 
