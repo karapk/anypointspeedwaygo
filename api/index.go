@@ -1,3 +1,4 @@
+
 package handler
 
 import (
@@ -5,7 +6,6 @@ import (
 	"net/http"
 
 	. "github.com/tbxark/g4vercel"
-	"github.com/google/uuid" 
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -22,50 +22,35 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 	}))
-
-	// Welcome endpoint
 	server.GET("/", func(context *Context) {
-		context.String(200, "Welcome to Anypoint Racing! 🚗💨")
+		context.String(200, "Welcome to the Race!")
 	})
-
-	// Start a new race
-	server.POST("/races", func(context *Context) {
-		var body struct {
-			Token string `json:"token"`
-		}
-		if err := context.Bind(&body); err != nil {
-			context.JSON(400, H{"message": "Invalid request"})
-			return
-		}
-
-		raceID := uuid.New().String() // Generate a new unique race ID
-		// Here you would typically store the raceID and token in a database or in-memory store
-
-		context.JSON(200, H{
-			"id":       raceID,
-			"racerId":  "2532c7d5-511b-466a-a8b7-bb6c797efa36",
-		})
-	})
-
-	// Handle lap completion
-	server.POST("/races/:id/laps", func(context *Context) {
-		raceID := context.Param("id")
-		var body struct {
-			Token string `json:"token"`
-		}
-		if err := context.Bind(&body); err != nil {
-			context.JSON(400, H{"message": "Invalid request"})
-			return
-		}
-
-		// Logic to handle lap completion would go here
-		// For demonstration, we'll just respond with the received token
-
-		context.JSON(200, H{
-			"token":   body.Token,
-			"racerId": "2532c7d5-511b-466a-a8b7-bb6c797efa36",
-		})
-	})
-
+	// server.GET("/hello", func(context *Context) {
+	// 	name := context.Query("name")
+	// 	if name == "" {
+	// 		context.JSON(400, H{
+	// 			"message": "name not found",
+	// 		})
+	// 	} else {
+	// 		context.JSON(200, H{
+	// 			"data": fmt.Sprintf("Hello %s!", name),
+	// 		})
+	// 	}
+	// })
+	// server.GET("/user/:id", func(context *Context) {
+	// 	context.JSON(400, H{
+	// 		"data": H{
+	// 			"id": context.Param("id"),
+	// 		},
+	// 	})
+	// })
+	// server.GET("/long/long/long/path/*test", func(context *Context) {
+	// 	context.JSON(200, H{
+	// 		"data": H{
+	// 			"url": context.Path,
+	// 		},
+	// 	})
+	// })
 	server.Handle(w, r)
 }
+
