@@ -1,4 +1,3 @@
-
 package handler
 
 import (
@@ -6,6 +5,12 @@ import (
 	"net/http"
 
 	. "github.com/tbxark/g4vercel"
+	"github.com/google/uuid" 
+)
+
+var (
+	myDb = make(map[string][]string) 
+	currentActiveRaceId   string
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -22,35 +27,47 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 	}))
+
 	server.GET("/", func(context *Context) {
 		context.String(200, "Welcome to the Race!")
 	})
-	// server.GET("/hello", func(context *Context) {
-	// 	name := context.Query("name")
-	// 	if name == "" {
-	// 		context.JSON(400, H{
-	// 			"message": "name not found",
-	// 		})
-	// 	} else {
-	// 		context.JSON(200, H{
-	// 			"data": fmt.Sprintf("Hello %s!", name),
-	// 		})
-	// 	}
-	// })
-	// server.GET("/user/:id", func(context *Context) {
-	// 	context.JSON(400, H{
-	// 		"data": H{
-	// 			"id": context.Param("id"),
-	// 		},
-	// 	})
-	// })
-	// server.GET("/long/long/long/path/*test", func(context *Context) {
-	// 	context.JSON(200, H{
-	// 		"data": H{
-	// 			"url": context.Path,
-	// 		},
-	// 	})
-	// })
+
+	server.POST("/races", func(context *Context) {
+		var requestBody struct {
+			Token string `json:"token"`
+		}
+		
+		// Decode the JSON request body
+		if err := context.BindJSON(&requestBody); err != nil {
+			context.JSON(http.StatusBadRequest, H{"message": "Invalid request"})
+			return
+		}
+
+		fmt.Println("Received request:", requestBody)
+		receivedToken := requestBody.Token
+		fmt.Println("Received token:", receivedToken)
+
+		if currentActiveRaceId != "" && myDb[currentActiveRaceId] != nil {
+			fmt.Println("Reusing existing race:", currentActiveRaceId)
+			context.JSON(http.StatusOK, H{
+				"id":      currentActiveRaceId,
+				"racerId": "2532c7d5-511b-466a-a8b7-bb6c797efa36",
+			})
+			return
+		}
+
+		raceId := uuid.New().String()
+		myDb[raceId] = []string{receivedToken} 
+		currentActiveRaceId = raceId         
+
+		toSend := H{
+			"id":      raceId,
+			"racerId": "2532c7d5-511b-466a-a8b7-bb6c797efa36",
+		}
+
+		fmt.Println("Race started:", toSend)
+		context.JSON(http.StatusOK, toSend)
+	})
+
 	server.Handle(w, r)
 }
-
