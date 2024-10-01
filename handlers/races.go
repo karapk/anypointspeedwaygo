@@ -53,12 +53,14 @@ func CompleteLapHandler(c echo.Context) error {
         return c.JSON(http.StatusNotFound, map[string]string{"error": "Race ID not found"})
     }
 
-    // Parse the received token
-    var receivedToken string
-    if err := c.Bind(&receivedToken); err != nil {
+    // Parse the received token from JSON
+    requestBody := make(map[string]string)
+    if err := c.Bind(&requestBody); err != nil {
         log.Println("Error binding received token:", err)
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
     }
+
+    receivedToken := requestBody["token"]
     log.Println("Received token for lap completion:", receivedToken)
 
     // Retrieve current tokens for the race and append the new token
