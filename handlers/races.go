@@ -1,6 +1,7 @@
 package handlers
 
 import (
+    "io"
     "log"
     "net/http"
     "github.com/google/uuid"
@@ -54,12 +55,13 @@ func CompleteLapHandler(c echo.Context) error {
     }
 
     // Read the received token from the request body (text/plain)
-    var receivedToken string
-    if err := c.Bind(&receivedToken); err != nil {
-        log.Println("Error binding received token:", err)
+    receivedTokenBytes, err := io.ReadAll(c.Request().Body)
+    if err != nil {
+        log.Println("Error reading received token:", err)
         return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
     }
 
+    receivedToken := string(receivedTokenBytes)
     log.Println("Received token for lap completion:", receivedToken)
 
     // Retrieve current tokens for the race and append the new token
@@ -87,3 +89,4 @@ func CompleteLapHandler(c echo.Context) error {
 
     return c.JSON(http.StatusOK, response)
 }
+
