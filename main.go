@@ -5,25 +5,23 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"anypointspeedwaygo/handlers"
 )
 
 func main() {
-	// Load environment variables from the .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 
-	// Set the port from the environment or default to 4000
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "4000"
 	}
 
-	// Create a new Echo instance
 	e := echo.New()
 
 	// Define routes
