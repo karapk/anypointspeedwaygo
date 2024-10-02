@@ -134,7 +134,7 @@ func TemperaturesHandler(c echo.Context) error {
     })
 
     response := map[string]interface{}{
-        "racerId": "32a2ef6f-806c-4af0-938c-545c47b5f5c6",
+        "racerId": "2532c7d5-511b-466a-a8b7-bb6c797efa36",
         "averages": averages,
     }
     log.Println("Returning response:", response)
