@@ -28,6 +28,7 @@ func main() {
 	e.GET("/", handlers.WelcomeHandler)
 	e.POST("/races", handlers.CreateRaceHandler)
 	e.POST("/races/:id/laps", handlers.CompleteLapHandler)
+	e.POST("/temperatures", handlers.TemperaturesHandler)
 
 	// Start the server
 	fmt.Printf("Server running at http://localhost:%s\n", port)

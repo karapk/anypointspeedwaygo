@@ -1,12 +1,25 @@
 package handlers
 
 import (
-    "io"
+	"io"
     "log"
-    "net/http"
-    "github.com/google/uuid"
-    "github.com/labstack/echo/v4"
+    "math"
+	"net/http"
+    "sort"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
+
+type Temperature struct {
+    Station     string  `json:"station"`
+    Temperature float64 `json:"temperature"`
+}
+
+type AverageTemperature struct {
+    Station     string  `json:"station"`
+    Temperature float64 `json:"temperature"`
+}
 
 var myDb = make(map[string][]string)
 
@@ -90,3 +103,41 @@ func CompleteLapHandler(c echo.Context) error {
     return c.JSON(http.StatusOK, response)
 }
 
+func TemperaturesHandler(c echo.Context) error {
+    log.Println("TemperaturesHandler called")
+
+    var measurements []Temperature
+    if err := c.Bind(&measurements); err != nil {
+        log.Println("Error binding request body:", err)
+        return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+    }
+    stationTempSums := make(map[string]float64)
+    stationTempCounts := make(map[string]int)
+
+    for _, measurement := range measurements {
+        stationTempSums[measurement.Station] += measurement.Temperature
+        stationTempCounts[measurement.Station]++
+    }
+
+    averages := []AverageTemperature{}
+    for station, sum := range stationTempSums {
+        avg := sum / float64(stationTempCounts[station])
+        roundedAvg := math.Round(avg*100000) / 100000
+        averages = append(averages, AverageTemperature{
+            Station: station, 
+            Temperature: roundedAvg, 
+        })
+    }
+
+    sort.Slice(averages, func(i, j int)bool {
+        return averages[i].Station < averages [j].Station
+    })
+
+    response := map[string]interface{}{
+        "racerId": "32a2ef6f-806c-4af0-938c-545c47b5f5c6",
+        "averages": averages,
+    }
+    log.Println("Returning response:", response)
+
+    return c.JSON(http.StatusOK, response)
+}
