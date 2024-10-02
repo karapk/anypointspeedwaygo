@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"io"
+    "compress/gzip"
     "log"
     "math"
 	"net/http"
@@ -105,6 +106,20 @@ func CompleteLapHandler(c echo.Context) error {
 
 func TemperaturesHandler(c echo.Context) error {
     log.Println("TemperaturesHandler called")
+    var reader io.ReadCloser
+    if c.Request().Header.Get("Content-Encoding") == "gzip" {
+        log.Println("Gzip encoding detected")
+        gzipReader, err := gzip.NewReader(c.Request().Body)
+        if err != nil {
+            log.Println("Error creating gzip reader:", err)
+            return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid gzip payload"})
+        }
+        defer gzipReader.Close()
+        reader = gzipReader
+    } else {
+        reader = c.Request().Body
+    }
+    defer reader.Close()
 
     var measurements []Temperature
     if err := c.Bind(&measurements); err != nil {
