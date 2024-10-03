@@ -1,12 +1,13 @@
 package handlers
 
 import (
+	"compress/gzip"
+	"encoding/json"
 	"io"
-    "compress/gzip"
-    "log"
-    "math"
+	"log"
+	"math"
 	"net/http"
-    "sort"
+	"sort"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -23,6 +24,10 @@ type AverageTemperature struct {
 }
 
 var myDb = make(map[string][]string)
+
+func WelcomeHandler(c echo.Context) error {
+    return c.String(http.StatusOK, "Welcome to Anypoint racing! 🚗💨")
+}
 
 func CreateRaceHandler(c echo.Context) error {
     log.Println("CreateRaceHandler called")
@@ -106,6 +111,7 @@ func CompleteLapHandler(c echo.Context) error {
 
 func TemperaturesHandler(c echo.Context) error {
     log.Println("TemperaturesHandler called")
+    
     var reader io.ReadCloser
     if c.Request().Header.Get("Content-Encoding") == "gzip" {
         log.Println("Gzip encoding detected")
@@ -121,38 +127,48 @@ func TemperaturesHandler(c echo.Context) error {
     }
     defer reader.Close()
 
-    var measurements []Temperature
-    if err := c.Bind(&measurements); err != nil {
-        log.Println("Error binding request body:", err)
-        return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
-    }
+    decoder := json.NewDecoder(reader)
+    
     stationTempSums := make(map[string]float64)
     stationTempCounts := make(map[string]int)
 
-    for _, measurement := range measurements {
+    if _, err := decoder.Token(); err != nil {
+        log.Println("Error reading JSON start:", err)
+        return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid JSON payload"})
+    }
+
+    for decoder.More() {
+        var measurement Temperature
+        if err := decoder.Decode(&measurement); err != nil {
+            log.Println("Error decoding measurement:", err)
+            return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid measurement"})
+        }
         stationTempSums[measurement.Station] += measurement.Temperature
         stationTempCounts[measurement.Station]++
     }
 
-    averages := []AverageTemperature{}
+    averages := make([]AverageTemperature, 0, len(stationTempSums))
     for station, sum := range stationTempSums {
         avg := sum / float64(stationTempCounts[station])
         roundedAvg := math.Round(avg*100000) / 100000
         averages = append(averages, AverageTemperature{
-            Station: station, 
-            Temperature: roundedAvg, 
+            Station:    station,
+            Temperature: roundedAvg,
         })
     }
 
-    sort.Slice(averages, func(i, j int)bool {
-        return averages[i].Station < averages [j].Station
+    sort.Slice(averages, func(i, j int) bool {
+        return averages[i].Station < averages[j].Station
     })
 
     response := map[string]interface{}{
-        "racerId": "2532c7d5-511b-466a-a8b7-bb6c797efa36",
+        "racerId":  "2532c7d5-511b-466a-a8b7-bb6c797efa36",
         "averages": averages,
     }
     log.Println("Returning response:", response)
 
     return c.JSON(http.StatusOK, response)
 }
+
+
+
