@@ -117,6 +117,7 @@ func TemperaturesHandler(c echo.Context) error {
     log.Println("TemperaturesHandler called")
     
     var reader io.ReadCloser
+    log.Println("Checking for gzip encoding")
     if c.Request().Header.Get("Content-Encoding") == "gzip" {
         log.Println("Gzip encoding detected")
         gzipReader, err := gzip.NewReader(c.Request().Body)
@@ -169,7 +170,7 @@ func TemperaturesHandler(c echo.Context) error {
             return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid measurement"})
         }
         
-        log.Printf("Decoded measurement: Station=%s, Temperature=%.2f\n", measurement.Station, measurement.Temperature)
+        // log.Printf("Decoded measurement: Station=%s, Temperature=%.2f\n", measurement.Station, measurement.Temperature)
         stationTempSums[measurement.Station] += measurement.Temperature
         stationTempCounts[measurement.Station]++
     }
@@ -180,7 +181,7 @@ func TemperaturesHandler(c echo.Context) error {
     for station, sum := range stationTempSums {
         avg := sum / float64(stationTempCounts[station])
         roundedAvg := math.Round(avg*100000) / 100000
-        log.Printf("Calculated average for station %s: %.5f\n", station, roundedAvg)
+        // log.Printf("Calculated average for station %s: %.5f\n", station, roundedAvg)
         averages = append(averages, AverageTemperature{
             Station:    station,
             Temperature: roundedAvg,
