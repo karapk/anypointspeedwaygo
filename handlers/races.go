@@ -57,7 +57,7 @@ func CreateRaceHandler(c echo.Context) error {
     // Create the response
     response := map[string]string{
         "id":      raceID,
-        "racerId": "3c9a6725-75a1-4cc7-bbaa-a3ae93531a04",
+        "racerId": "2532c7d5-511b-466a-a8b7-bb6c797efa36",
     }
     log.Println("Returning response:", response)
 
@@ -106,7 +106,7 @@ func CompleteLapHandler(c echo.Context) error {
     // Create the response
     response := map[string]string{
         "token":   previousToken,
-        "racerId": "3c9a6725-75a1-4cc7-bbaa-a3ae93531a04",
+        "racerId": "2532c7d5-511b-466a-a8b7-bb6c797efa36",
     }
     log.Println("Returning response:", response)
 
@@ -195,7 +195,7 @@ func TemperaturesHandler(c echo.Context) error {
 
     // Prepare and log the response
     response := Response{
-        RacerID:  "3c9a6725-75a1-4cc7-bbaa-a3ae93531a04",
+        RacerID:  "2532c7d5-511b-466a-a8b7-bb6c797efa36",
         Averages: averages,
     }
     log.Println("Returning response:", response)
