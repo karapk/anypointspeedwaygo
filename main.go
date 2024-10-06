@@ -5,17 +5,11 @@ import (
 	"log"
 	"os"
 
-	// "github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
 	"anypointspeedwaygo/handlers"
+	"github.com/labstack/echo/v4"
 )
 
 func main() {
-
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -30,7 +24,6 @@ func main() {
 	e.POST("/races/:id/laps", handlers.CompleteLapHandler)
 	e.POST("/temperatures", handlers.TemperaturesHandler)
 
-	// Start the server
 	fmt.Printf("Server running at http://localhost:%s\n", port)
 	log.Fatal(e.Start(":" + port))
 }
